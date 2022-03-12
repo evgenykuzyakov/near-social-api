@@ -12,7 +12,7 @@ use warp::Filter;
 #[tokio::main]
 async fn main() -> Result<(), io::Error> {
     if env::var_os("RUST_LOG").is_none() {
-        env::set_var("RUST_LOG", "api=info");
+        env::set_var("RUST_LOG", "api=info,data=info");
     }
     pretty_env_logger::init();
 
@@ -20,7 +20,7 @@ async fn main() -> Result<(), io::Error> {
 
     let data = Data::load().await?;
 
-    println!("Data loaded!\nNum accounts: {}", data.accounts.len(),);
+    log::info!(target: "data", "Initial data loaded! Num accounts: {}", data.accounts.len());
 
     let async_data = Arc::new(Mutex::new(data));
     let wrap_async_data = async_data.clone();
@@ -38,9 +38,10 @@ async fn main() -> Result<(), io::Error> {
                         Ok(new_data) => {
                             let mut data = async_data.lock().unwrap();
                             *data = new_data;
+                            log::debug!(target: "data", "Refetched data. Num accounts: {}", data.accounts.len());
                         }
                         Err(e) => {
-                            println!("Error while refetching data: {}", e);
+                            log::error!(target: "data", "Error while refetching data: {}", e);
                         }
                     }
                 })
@@ -66,7 +67,6 @@ async fn main() -> Result<(), io::Error> {
         .with(cors.clone())
         .with(log);
 
-    println!("Serving");
     warp::serve(accounts).run(([127, 0, 0, 1], 3032)).await;
 
     Ok(())
