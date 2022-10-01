@@ -132,14 +132,18 @@ impl Data {
         let mut following = HashMap::new();
         let mut followers = HashMap::new();
         for edge in follow_edges {
-            following
-                .entry(edge.account_id)
-                .or_insert_with(Vec::new)
-                .push(account_ids.get(&edge.target_account_id).unwrap().clone());
-            followers
-                .entry(edge.target_account_id)
-                .or_insert_with(Vec::new)
-                .push(account_ids.get(&edge.account_id).unwrap().clone());
+            if account_ids.contains_key(&edge.account_id)
+                && account_ids.contains_key(&edge.target_account_id)
+            {
+                following
+                    .entry(edge.account_id)
+                    .or_insert_with(Vec::new)
+                    .push(account_ids.get(&edge.target_account_id).unwrap().clone());
+                followers
+                    .entry(edge.target_account_id)
+                    .or_insert_with(Vec::new)
+                    .push(account_ids.get(&edge.account_id).unwrap().clone());
+            }
         }
 
         let accounts = raw_accounts
