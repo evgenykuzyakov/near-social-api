@@ -7,7 +7,7 @@ use serde::{Deserialize, Deserializer};
 fn make_image_url(prefix: &str, account_id: NearSocialAccountId, file_name: &str) -> String {
     let id = format!("{:018}", account_id);
     format!(
-        "https://near.social/system/accounts/{}/{}/{}/{}/{}/{}/{}/original/{}",
+        "https://mastodon.near.social/system/accounts/{}/{}/{}/{}/{}/{}/{}/original/{}",
         prefix,
         &id[0..3],
         &id[3..6],
